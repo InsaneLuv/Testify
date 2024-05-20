@@ -7,14 +7,14 @@ files = ['gallery.pro', 'app/']
 
 # TARGET
 target = Executable(
-    script="demo.py",
+    script="main.py",
     base="Win32GUI"
 )
 
 # SETUP CX FREEZE
 setup(
     name="Testify",
-    version="1.0",
+    version="1.1",
     description="Курсовая работа",
     author="Молитвин данила",
     options={'build_exe': {'include_files': files}},

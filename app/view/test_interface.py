@@ -1,26 +1,19 @@
-# coding:utf-8
-import json
-import os
-from random import randint
-from enum import Enum
 import inspect
-from PyQt5.QtWidgets import QWidget, QGraphicsDropShadowEffect, QGraphicsBlurEffect, QTableWidgetItem
-from qfluentwidgets import FluentIcon, setFont, InfoBarIcon, PushButton, MessageBox, NavigationItemPosition, setTheme, \
-    RoundMenu, TabItem, SubtitleLabel, IconWidget
-from PyQt5.QtCore import Qt, QSize, QTimer, QTime
+import json
+from enum import Enum
+
 from PyQt5.QtGui import QColor, QKeySequence
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QAction, QGridLayout, QFrame, QSpacerItem, QSizePolicy, QFileDialog
-from qfluentwidgets import (Action, DropDownPushButton, DropDownToolButton, PushButton, PrimaryPushButton,
-                            HyperlinkButton, setTheme, Theme, ToolButton, ToggleButton, RoundMenu,
-                            SplitPushButton, SplitToolButton, PrimaryToolButton, PrimarySplitPushButton,
-                            PrimarySplitToolButton, PrimaryDropDownPushButton, PrimaryDropDownToolButton,
-                            TogglePushButton, ToggleToolButton, TransparentPushButton, TransparentToolButton,
-                            TransparentToggleToolButton, TransparentTogglePushButton, TransparentDropDownToolButton,
-                            PillPushButton, PillToolButton, setCustomStyleSheet,
-                            CustomStyleSheet, LineEdit, RadioButton, CheckBox, BodyLabel, TitleLabel, MessageBoxBase)
-from qfluentwidgets import FluentIcon as FIF
+from PyQt5.QtWidgets import QGraphicsDropShadowEffect, QTableWidgetItem
+from PyQt5.QtWidgets import QWidget, QFileDialog
 from cryptography.fernet import Fernet
+from qfluentwidgets import FluentIcon
+from qfluentwidgets import FluentIcon as FIF
+from qfluentwidgets import (LineEdit, RadioButton, CheckBox)
+
 from .Ui_TestInterface import Ui_TestInterface
+from .components.customBoxBase import NotifyBox
+from .components.tools import TimerManager, time_to_seconds
+
 
 def time_to_seconds(time_str):
     hours, minutes, seconds = map(int, time_str.split(':'))
@@ -246,7 +239,7 @@ class TestInterface(Ui_TestInterface, QWidget):
             print(f'Undefined widgetName {widgetName}')
 
     def showAnswersFreezedDialog(self, _, title, message):
-        w = CustomTimeMessageBox(self.window(), title, message)
+        w = NotifyBox(self.window(), title, message)
         if w.exec():
             print('ok')
 
@@ -286,16 +279,6 @@ class TableHandler:
                 tableWidget.setItem(i, j, item)
 
         tableWidget.resizeColumnsToContents()
-class CustomTimeMessageBox(MessageBoxBase):
-    def __init__(self, parent, title=None, message=None):
-        super().__init__(parent)
-        self.titleLabel = SubtitleLabel(title, self)
-        self.viewLayout.addWidget(self.titleLabel)
-        self.subLabel = BodyLabel(message, self)
-        self.viewLayout.addWidget(self.subLabel)
-        self.yesButton.setText(self.tr('Я понял'))
-        self.yesButton.setShortcut("Return")
-        self.cancelButton.setHidden(True)
 class QuizWidget:
     def __init__(self):
         self.timerManager = None
@@ -317,7 +300,7 @@ class QuizWidget:
         self.ui.nextButton.setHidden(True)
         self.ui.prevButton.setHidden(True)
         self.ui.endButton.setHidden(True)
-        w = CustomTimeMessageBox(self.ui.window(), 'Время вышло', 'У вас есть время ответить на последний вопрос.\n(Все неподтверждённые ответы были сохранены)')
+        w = NotifyBox(self.ui.window(), 'Время вышло', 'У вас есть время ответить на последний вопрос.\n(Все неподтверждённые ответы были сохранены)')
         w.exec()
 
     def updateTimeLabel(self, time):
@@ -510,36 +493,6 @@ class Question:
         elif self.mode == 'choose':
             print(self.user_answer, self.correct_answer)
             return self.user_answer == self.correct_answer
-class TimerManager:
-    def __init__(self, total_time_minutes, update_callback, on_end_callback=None):
-        self.total_time_seconds = total_time_minutes * 60
-        self.elapsed_time_seconds = 0
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.update_timer)
-        self.update_callback = update_callback
-        self.on_end_callback = on_end_callback
-
-    def start_timer(self):
-        self.update_timer()  # Update immediately
-        self.timer.start(1000)
-
-    def stop_timer(self):
-        self.timer.stop()
-
-    def update_timer(self):
-        self.elapsed_time_seconds += 1
-        remaining_time = self.calculate_remaining_time()
-        self.update_callback(remaining_time)
-
-        if remaining_time == QTime(0, 0):
-            self.timer.stop()
-            if self.on_end_callback is not None:
-                self.on_end_callback()
-
-    def calculate_remaining_time(self):
-        remaining_time_seconds = max(0, int(self.total_time_seconds) - self.elapsed_time_seconds)
-        remaining_time = QTime(0, 0).addSecs(remaining_time_seconds)
-        return remaining_time
 class QuizManager:
     def __init__(self, questions):
         self.questions = questions

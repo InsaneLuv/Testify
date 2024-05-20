@@ -62,13 +62,13 @@ class Config(QConfig):
 YEAR = 2024
 AUTHOR = "InsaneLuv"
 VERSION = __version__
-HELP_URL = "https://github.com/InsaneLuv/Testify"
-REPO_URL = "https://github.com/InsaneLuv/Testify"
-EXAMPLE_URL = "https://github.com/zhiyiYo/PyQt-Fluent-Widgets/tree/master/examples"
-FEEDBACK_URL = "https://github.com/InsaneLuv/Testify/issues"
-RELEASE_URL = "https://github.com/zhiyiYo/PyQt-Fluent-Widgets/releases/latest"
-ZH_SUPPORT_URL = "https://qfluentwidgets.com/zh/price/"
-EN_SUPPORT_URL = "https://qfluentwidgets.com/price/"
+HELP_URL = "https://github.com/InsaneLuv/TestifyPyfluent"
+REPO_URL = "https://github.com/InsaneLuv/TestifyPyfluent"
+EXAMPLE_URL = ""
+FEEDBACK_URL = "https://github.com/InsaneLuv/TestifyPyfluent/issues"
+RELEASE_URL = "https://github.com/InsaneLuv/TestifyPyfluent/releases/latest"
+ZH_SUPPORT_URL = ""
+EN_SUPPORT_URL = ""
 
 
 cfg = Config()

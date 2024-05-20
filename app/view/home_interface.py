@@ -1,14 +1,14 @@
 # coding:utf-8
 from PyQt5.QtCore import Qt, QRectF
-from PyQt5.QtGui import QPixmap, QPainter, QColor, QBrush, QPainterPath, QLinearGradient
+from PyQt5.QtGui import QPainter, QColor, QBrush, QPainterPath, QLinearGradient
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel
-
 from qfluentwidgets import ScrollArea, isDarkTheme, FluentIcon
-from ..common.config import cfg, HELP_URL, REPO_URL, EXAMPLE_URL, FEEDBACK_URL
-from ..common.icon import Icon, FluentIconBase
+
+from ..common.config import REPO_URL
+from ..common.style_sheet import StyleSheet
 from ..components.link_card import LinkCardView
 from ..components.sample_card import SampleCardView
-from ..common.style_sheet import StyleSheet
+
 
 class BannerWidget(QWidget):
     """ Banner widget """
@@ -16,14 +16,10 @@ class BannerWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.setFixedHeight(336)
-
         self.vBoxLayout = QVBoxLayout(self)
         self.galleryLabel = QLabel('Testify', self)
-        self.banner = QPixmap(':/gallery/images/header.png')
         self.linkCardView = LinkCardView(self)
-
         self.galleryLabel.setObjectName('galleryLabel')
-
         self.vBoxLayout.setSpacing(0)
         self.vBoxLayout.setContentsMargins(0, 20, 0, 0)
         self.vBoxLayout.addWidget(self.galleryLabel)
@@ -37,7 +33,6 @@ class BannerWidget(QWidget):
                 'Исходный код программы на странице проекта github.'),
             REPO_URL
         )
-        #
         self.linkCardView.addCard(
             FluentIcon.FEEDBACK,
             self.tr('Telegram'),
@@ -61,29 +56,18 @@ class BannerWidget(QWidget):
         path.addRect(QRectF(w-50, 0, 50, 50))
         path.addRect(QRectF(w-50, h-50, 50, 50))
         path = path.simplified()
-
-        # init linear gradient effect
         gradient = QLinearGradient(0, 0, 0, h)
-
-        # draw background color
         if not isDarkTheme():
-            gradient.setColorAt(0, QColor(207, 216, 228, 255))
+            gradient.setColorAt(0, QColor(207, 216, 228, 70))
             gradient.setColorAt(1, QColor(207, 216, 228, 0))
         else:
-            gradient.setColorAt(0, QColor(0, 0, 0, 255))
+            gradient.setColorAt(0, QColor(0, 0, 0, 70))
             gradient.setColorAt(1, QColor(0, 0, 0, 0))
             
         painter.fillPath(path, QBrush(gradient))
 
-        # draw banner image
-        pixmap = self.banner.scaled(
-            self.size(), transformMode=Qt.SmoothTransformation)
-        painter.fillPath(path, QBrush(pixmap))
-
 
 class HomeInterface(ScrollArea):
-    """ Home interface """
-
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.banner = BannerWidget(self)
@@ -103,14 +87,22 @@ class HomeInterface(ScrollArea):
         self.setWidgetResizable(True)
 
         self.vBoxLayout.setContentsMargins(0, 0, 0, 36)
-        self.vBoxLayout.setSpacing(40)
+        self.vBoxLayout.setSpacing(4)
         self.vBoxLayout.addWidget(self.banner)
         self.vBoxLayout.setAlignment(Qt.AlignTop)
 
     def loadSamples(self):
-        """ load samples """
-        # basic input samples
-        basicInputView = SampleCardView(self.tr("Новости обновления"), self.view)
+        basicInputView = SampleCardView(self.tr("Новости обновления 1.1"), self.view)
+        basicInputView.addSampleCard(
+            icon=":/gallery/images/controls/Border.png",
+            title="Улучшение редактора",
+            content="Оцените новые интересные функции \nредактора.",
+            routeKey="editorInterface",
+            index=1
+        )
+        self.vBoxLayout.addWidget(basicInputView)
+
+        basicInputView = SampleCardView(self.tr("Новости обновления 1.0"), self.view)
         basicInputView.addSampleCard(
             icon=":/gallery/images/controls/InfoBadge.png",
             title="Новый интерфейс",

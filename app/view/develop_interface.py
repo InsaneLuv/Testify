@@ -1,69 +1,17 @@
 # coding:utf-8
-import json
-import os
-import random
-from random import randint
 
-from PyQt5 import uic
-from PyQt5.QtGui import QColor, QKeySequence
-from PyQt5.QtWidgets import QWidget, QGraphicsDropShadowEffect, QCompleter
-from qfluentwidgets import FluentIcon, setFont, InfoBarIcon, PushButton, MessageBox, NavigationItemPosition, setTheme, \
-    RoundMenu, TabBar, MSFluentTitleBar, MessageBoxBase, SearchLineEdit
-from PyQt5.QtWidgets import QApplication, QWidget, QInputDialog, QLineEdit, QFileDialog
-from PyQt5.QtCore import Qt, QSize, QPoint
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QAction, QGridLayout
-from qfluentwidgets import (Action, DropDownPushButton, DropDownToolButton, PushButton, PrimaryPushButton,
-                            HyperlinkButton, setTheme, Theme, ToolButton, ToggleButton, RoundMenu,
-                            SplitPushButton, SplitToolButton, PrimaryToolButton, PrimarySplitPushButton,
-                            PrimarySplitToolButton, PrimaryDropDownPushButton, PrimaryDropDownToolButton,
-                            TogglePushButton, ToggleToolButton, TransparentPushButton, TransparentToolButton,
-                            TransparentToggleToolButton, TransparentTogglePushButton, TransparentDropDownToolButton,
-                            TransparentDropDownPushButton, PillPushButton, PillToolButton, setCustomStyleSheet,
-                            CustomStyleSheet, SubtitleLabel, LineEdit, CaptionLabel)
+from PyQt5.QtGui import QColor
+from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QGraphicsDropShadowEffect
+from PyQt5.QtWidgets import QWidget
+from qfluentwidgets import Action
 from qfluentwidgets import FluentIcon as FIF
+from qfluentwidgets import (RoundMenu)
 
-from .test_interface import TestInterface, Question
-from .Ui_DevelopInterface import Ui_DevelopInterface
-from qfluentwidgets import FluentIcon as FIF
-from qfluentwidgets import Theme, Action
 from app.common.config import cfg
-from app.common.icon import Icon
-from app.common.style_sheet import StyleSheet
-
-class CustomMessageBox(MessageBoxBase):
-    """ Custom message box """
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.titleLabel = SubtitleLabel(self.tr('Введите ваши данные'), self)
-        self.viewLayout.addWidget(self.titleLabel)
-
-        self.userNameEdit = SearchLineEdit(self)
-        self.userNameEdit.setPlaceholderText(self.tr('Имя Фамилия'))
-        self.userNameEdit.setClearButtonEnabled(True)
-        self.userNameEdit.setMaxLength(50)
-        self.completerNames = cfg.get(cfg.userHistory)
-        completer = QCompleter(self.completerNames, self.userNameEdit)
-        completer.setCaseSensitivity(Qt.CaseInsensitive)
-        completer.setMaxVisibleItems(3)
-        self.userNameEdit.setCompleter(completer)
-        self.viewLayout.addWidget(self.userNameEdit)
-
-        self.yesButton.setText('Начать тест')
-        self.yesButton.setShortcut("Return")
-        self.yesButton.setIcon(FIF.PLAY)
-        self.cancelButton.setText('Отменить')
-        self.cancelButton.setShortcut("Esc")
-
-        self.widget.setMinimumWidth(400)
-        self.yesButton.setDisabled(True)
-        self.userNameEdit.textChanged.connect(self.ifTextInput)
-
-    def ifTextInput(self, text):
-        if len(text.split()) >= 2:
-            self.yesButton.setEnabled(True)
-        else:
-            self.yesButton.setEnabled(False)
+from .Ui_DevelopInterface import Ui_DevelopInterface
+from .components.customBoxBase import UserNameBox
+from .test_interface import TestInterface
 
 
 class DevelopInterface(Ui_DevelopInterface, QWidget):
@@ -73,7 +21,7 @@ class DevelopInterface(Ui_DevelopInterface, QWidget):
         super().__init__(parent=parent)
         self.setObjectName('developInterface')
         self.setupUi(self)
-        self.nameWindow = CustomMessageBox(self.window())
+        self.nameWindow = UserNameBox(self.window())
         self.name = None
         self._initInterface()
         self.createdFileInterfaces = []
@@ -111,7 +59,7 @@ class DevelopInterface(Ui_DevelopInterface, QWidget):
 
     def showCustomDialog(self):
         if not self.name:
-            w = CustomMessageBox(self.window())
+            w = UserNameBox(self.window())
             if w.exec():
                 self.name = w.userNameEdit.text()
                 newCompleterNames = cfg.get(cfg.userHistory)
@@ -146,7 +94,7 @@ class DevelopInterface(Ui_DevelopInterface, QWidget):
 
     def addInterfaceToSuperview(self, newInterface, filePath):
         self.parent.stackedWidget.addWidget(newInterface)
-        self.parent.addNewSubInterface(icon=FIF.DOCUMENT, name=filePath, interface=newInterface)
+        self.parent.addSubInterface(icon=FIF.DOCUMENT, text=filePath, interface=newInterface)
 
     def ChooseFileButtonAction(self):
         options = QFileDialog.Options()

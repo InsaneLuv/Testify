@@ -70,258 +70,8 @@ border: 0;</string>
 border: 0;</string>
          </property>
          <property name="currentIndex">
-          <number>2</number>
+          <number>1</number>
          </property>
-         <widget class="QWidget" name="pageChooseWidget">
-          <layout class="QGridLayout" name="gridLayout">
-           <item row="2" column="0">
-            <spacer name="spacer">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>293</width>
-               <height>247</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item row="0" column="1">
-            <spacer name="verticalSpacer">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>152</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item row="3" column="1">
-            <spacer name="spacer_6">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>347</width>
-               <height>172</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item row="2" column="1">
-            <widget class="SimpleCardWidget" name="pageChooseChooseFile">
-             <property name="minimumSize">
-              <size>
-               <width>350</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>250</height>
-              </size>
-             </property>
-             <layout class="QVBoxLayout" name="verticalLayout_9">
-              <property name="spacing">
-               <number>12</number>
-              </property>
-              <property name="leftMargin">
-               <number>64</number>
-              </property>
-              <property name="topMargin">
-               <number>36</number>
-              </property>
-              <property name="rightMargin">
-               <number>64</number>
-              </property>
-              <property name="bottomMargin">
-               <number>36</number>
-              </property>
-              <item>
-               <spacer name="spacer_3">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>40</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="layout">
-                <property name="spacing">
-                 <number>4</number>
-                </property>
-                <item>
-                 <widget class="IconWidget" name="chooseFileIcon">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>24</width>
-                    <height>24</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>24</width>
-                    <height>24</height>
-                   </size>
-                  </property>
-                  <property name="acceptDrops">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <widget class="PrimaryPushButton" name="newFileIconButton">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>16777215</height>
-                 </size>
-                </property>
-                <property name="cursor">
-                 <cursorShape>PointingHandCursor</cursorShape>
-                </property>
-                <property name="acceptDrops">
-                 <bool>true</bool>
-                </property>
-                <property name="text">
-                 <string>Создать новый</string>
-                </property>
-                <property name="icon">
-                 <iconset>
-                  <normaloff>:/gallery/images/icons/Menu_black.svg</normaloff>:/gallery/images/icons/Menu_black.svg</iconset>
-                </property>
-                <property name="hasIcon" stdset="0">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="PushButton" name="chooseFileIconButton">
-                <property name="text">
-                 <string>Редактировать .tstf</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="BodyLabel" name="ChooseFileLabel">
-                <property name="acceptDrops">
-                 <bool>true</bool>
-                </property>
-                <property name="text">
-                 <string>Создавайте и редактируйте</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignCenter</set>
-                </property>
-                <property name="lightColor" stdset="0">
-                 <color alpha="150">
-                  <red>0</red>
-                  <green>0</green>
-                  <blue>0</blue>
-                 </color>
-                </property>
-                <property name="darkColor" stdset="0">
-                 <color alpha="150">
-                  <red>255</red>
-                  <green>255</green>
-                  <blue>255</blue>
-                 </color>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="spacer_4">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>40</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="CaptionLabel" name="pageHeader">
-             <property name="font">
-              <font>
-               <pointsize>20</pointsize>
-               <weight>50</weight>
-               <bold>false</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>Редактор</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-             <property name="lightColor" stdset="0">
-              <color alpha="150">
-               <red>0</red>
-               <green>0</green>
-               <blue>0</blue>
-              </color>
-             </property>
-             <property name="darkColor" stdset="0">
-              <color alpha="150">
-               <red>255</red>
-               <green>255</green>
-               <blue>255</blue>
-              </color>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="2">
-            <spacer name="spacer_2">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>292</width>
-               <height>247</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
-         </widget>
          <widget class="QWidget" name="pageEditorWidget">
           <layout class="QVBoxLayout" name="verticalLayout_3">
            <item>
@@ -668,6 +418,45 @@ border: 0;</string>
                     <number>4</number>
                    </property>
                    <item>
+                    <widget class="PushButton" name="importBtn">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="text">
+                      <string>Импорт</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="PushButton" name="exportBtn">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="text">
+                      <string>Экспорт</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="PushButton" name="filterBtn">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="text">
+                      <string>Фильтр</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
                     <spacer name="horizontalSpacer_5">
                      <property name="orientation">
                       <enum>Qt::Horizontal</enum>
@@ -703,7 +492,17 @@ border: 0;</string>
                   </layout>
                  </item>
                  <item>
-                  <layout class="QVBoxLayout" name="questions_container"/>
+                  <layout class="QVBoxLayout" name="questions_container">
+                   <property name="spacing">
+                    <number>4</number>
+                   </property>
+                   <property name="sizeConstraint">
+                    <enum>QLayout::SetMinimumSize</enum>
+                   </property>
+                   <property name="bottomMargin">
+                    <number>0</number>
+                   </property>
+                  </layout>
                  </item>
                 </layout>
                </item>
@@ -1343,7 +1142,7 @@ border: 0;</string>
                     <item>
                      <widget class="HyperlinkLabel" name="settingsTimeChangeButton">
                       <property name="text">
-                       <string>00:00:00</string>
+                       <string>00:45:00</string>
                       </property>
                      </widget>
                     </item>
@@ -1619,7 +1418,7 @@ border: 0;</string>
                     <item>
                      <widget class="HyperlinkLabel" name="settingsPrivacyLaterChangeButton">
                       <property name="text">
-                       <string>00:00:00</string>
+                       <string>00:00:10</string>
                       </property>
                      </widget>
                     </item>
@@ -1749,7 +1548,7 @@ border: 0;</string>
                     <item>
                      <widget class="HyperlinkLabel" name="settingsSecondTryButton">
                       <property name="text">
-                       <string>00:00:00</string>
+                       <string>00:01:00</string>
                       </property>
                      </widget>
                     </item>
@@ -2046,6 +1845,9 @@ border: 0;</string>
                       <property name="maximum">
                        <number>10</number>
                       </property>
+                      <property name="value">
+                       <number>5</number>
+                      </property>
                      </widget>
                     </item>
                    </layout>
@@ -2176,7 +1978,7 @@ border: 0;</string>
                     <item>
                      <widget class="HyperlinkLabel" name="gradeShowLaterChangeButton">
                       <property name="text">
-                       <string>00:00:00</string>
+                       <string>00:00:15</string>
                       </property>
                      </widget>
                     </item>
@@ -2492,6 +2294,256 @@ border: 0;</string>
               </layout>
              </widget>
             </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="pageChooseWidget">
+          <layout class="QGridLayout" name="gridLayout">
+           <item row="2" column="0">
+            <spacer name="spacer">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>293</width>
+               <height>247</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="0" column="1">
+            <spacer name="verticalSpacer">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>152</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="3" column="1">
+            <spacer name="spacer_6">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>347</width>
+               <height>172</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="2" column="1">
+            <widget class="SimpleCardWidget" name="pageChooseChooseFile">
+             <property name="minimumSize">
+              <size>
+               <width>350</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>250</height>
+              </size>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_9">
+              <property name="spacing">
+               <number>12</number>
+              </property>
+              <property name="leftMargin">
+               <number>64</number>
+              </property>
+              <property name="topMargin">
+               <number>36</number>
+              </property>
+              <property name="rightMargin">
+               <number>64</number>
+              </property>
+              <property name="bottomMargin">
+               <number>36</number>
+              </property>
+              <item>
+               <spacer name="spacer_3">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="layout">
+                <property name="spacing">
+                 <number>4</number>
+                </property>
+                <item>
+                 <widget class="IconWidget" name="chooseFileIcon">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>24</width>
+                    <height>24</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>24</width>
+                    <height>24</height>
+                   </size>
+                  </property>
+                  <property name="acceptDrops">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <widget class="PrimaryPushButton" name="newFileIconButton">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
+                </property>
+                <property name="acceptDrops">
+                 <bool>true</bool>
+                </property>
+                <property name="text">
+                 <string>Создать новый</string>
+                </property>
+                <property name="icon">
+                 <iconset>
+                  <normaloff>:/gallery/images/icons/Menu_black.svg</normaloff>:/gallery/images/icons/Menu_black.svg</iconset>
+                </property>
+                <property name="hasIcon" stdset="0">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="PushButton" name="chooseFileIconButton">
+                <property name="text">
+                 <string>Редактировать .tstf</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="BodyLabel" name="ChooseFileLabel">
+                <property name="acceptDrops">
+                 <bool>true</bool>
+                </property>
+                <property name="text">
+                 <string>Создавайте и редактируйте</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+                <property name="lightColor" stdset="0">
+                 <color alpha="150">
+                  <red>0</red>
+                  <green>0</green>
+                  <blue>0</blue>
+                 </color>
+                </property>
+                <property name="darkColor" stdset="0">
+                 <color alpha="150">
+                  <red>255</red>
+                  <green>255</green>
+                  <blue>255</blue>
+                 </color>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="spacer_4">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="CaptionLabel" name="pageHeader">
+             <property name="font">
+              <font>
+               <pointsize>20</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Редактор</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="lightColor" stdset="0">
+              <color alpha="150">
+               <red>0</red>
+               <green>0</green>
+               <blue>0</blue>
+              </color>
+             </property>
+             <property name="darkColor" stdset="0">
+              <color alpha="150">
+               <red>255</red>
+               <green>255</green>
+               <blue>255</blue>
+              </color>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="2">
+            <spacer name="spacer_2">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>292</width>
+               <height>247</height>
+              </size>
+             </property>
+            </spacer>
            </item>
           </layout>
          </widget>

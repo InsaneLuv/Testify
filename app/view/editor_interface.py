@@ -1,21 +1,22 @@
 # coding:utf-8
-import time
 import json
+import time
 import uuid
 
-from PyQt5.QtGui import QCursor, QColor
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtGui import QColor
+from PyQt5.QtWidgets import QGraphicsDropShadowEffect, QGraphicsOpacityEffect
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QFrame, QHBoxLayout, QSizePolicy, QFileDialog
+from cryptography.fernet import Fernet
+from qfluentwidgets import FluentIcon, InfoBar, \
+    InfoBarPosition, Flyout
+from qfluentwidgets import FluentIcon as FIF
+from qfluentwidgets import LineEdit, CheckBox, RadioButton, ComboBox, ScrollArea, ToolButton, SimpleCardWidget
 
 from .Ui_EditorInterface import Ui_EditorInterface
-from PyQt5.QtWidgets import QWidget, QGraphicsDropShadowEffect, QCompleter, QLabel, QGraphicsOpacityEffect, QGraphicsBlurEffect
-from qfluentwidgets import MessageBoxBase, SearchLineEdit, FluentIcon, TimePicker, ExpandLayout, InfoBar, \
-    InfoBarPosition, Flyout, InfoBarIcon, BodyLabel, Slider, FluentIconBase
-from PyQt5.QtCore import Qt, QSize, QPoint, QTime, QPropertyAnimation, QEasingCurve, pyqtSlot, QRect
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QAction, QGridLayout, QFrame, QHBoxLayout, QSizePolicy, QFileDialog, QTableWidgetItem
-from qfluentwidgets import SubtitleLabel, LineEdit, PushButton, CheckBox, RadioButton, ComboBox, ScrollArea, ToolButton, SimpleCardWidget
-from qfluentwidgets import FluentIcon as FIF
-from app.common.config import cfg
-from ..common.style_sheet import StyleSheet
-from cryptography.fernet import Fernet
+from .components.customBoxBase import TestRenameTestBox, TestChangeTimeBox, TestGradeSettingsBox
+
+
 def time_to_seconds(time_str):
     hours, minutes, seconds = map(int, time_str.split(':'))
     total_seconds = hours * 3600 + minutes * 60 + seconds
@@ -425,9 +426,9 @@ class EditorInterface(Ui_EditorInterface, QWidget):
         self.setupUi(self)
         self._initInterface()
     def _initInterface(self):
-
+        self.question_handler = EQuestionHandler(self)
         self.backButton.setHidden(False)
-        self.renameWindow = CustomMessageBox(self.window())
+        self.renameWindow = TestRenameTestBox(self.window())
         self.headerLabel.setText('Редактор')
 
         self.saveButtonIcon.setIcon(FluentIcon.SAVE)
@@ -438,18 +439,46 @@ class EditorInterface(Ui_EditorInterface, QWidget):
         self.backButton.setHidden(True)
 
         self.stackedWidget.setCurrentWidget(self.homePage)
-        self.question_handler = EQuestionHandler(self)
-
-        self.addNewButton.clicked.connect(self.rysyProtifYasherov)
-        self.addNewButton.setText('Добавить')
-        self.addNewButton.setIcon(FIF.ADD)
-        self.hideAllButton.clicked.connect(self.jaYstal)
-        self.hideAllButton.setText('Скрыть все')
-        self.hideAllButton.setIcon(FIF.REMOVE)
 
         self.fillHomePage()
         self.fillSettingsQuestionWidget()
         self.fillGradeQuestionWidget()
+        self.fillEditorQuestionWidget()
+
+    def fillEditorQuestionWidget(self):
+
+        self.addNewButton.clicked.connect(self.rysyProtifYasherov)
+        self.addNewButton.setText('Добавить')
+        self.addNewButton.setIcon(FIF.ADD)
+
+        self.hideAllButton.clicked.connect(self.jaYstal)
+        self.hideAllButton.setText('Скрыть все')
+        self.hideAllButton.setIcon(FIF.REMOVE)
+
+        self.importBtn.clicked.connect((lambda _=None,
+                                                          icon=FIF.CODE,
+                                                          title='Эта функция пока не готова',
+                                                          content='Ожидайте в следующей версии программы.',
+                                                          target=self.importBtn: self.showFlyout(_, icon, title, content, target)))
+        self.importBtn.setText('Импорт')
+        self.importBtn.setIcon(FIF.DOWN)
+
+        self.exportBtn.clicked.connect((lambda _=None,
+                                                          icon=FIF.CODE,
+                                                          title='Эта функция пока не готова',
+                                                          content='Ожидайте в следующей версии программы.',
+                                                          target=self.exportBtn: self.showFlyout(_, icon, title, content, target)))
+        self.exportBtn.setText('Экспорт')
+        self.exportBtn.setIcon(FIF.UP)
+
+        self.filterBtn.clicked.connect((lambda _=None,
+                                                          icon=FIF.CODE,
+                                                          title='Эта функция пока не готова',
+                                                          content='Ожидайте в следующей версии программы.',
+                                                          target=self.filterBtn: self.showFlyout(_, icon, title, content, target)))
+        self.filterBtn.setText('Фильтр')
+        self.filterBtn.setIcon(FIF.FILTER)
+
 
     def fillGradeQuestionWidget(self):
         self.gradeMaxCountIcon.setIcon(FluentIcon.SPEED_HIGH)
@@ -469,6 +498,13 @@ class EditorInterface(Ui_EditorInterface, QWidget):
         self.gradeShowPercentageIcon.setIcon(FluentIcon.SEARCH)
         self.gradeShowPercentage.clicked.connect(self.gradePercentageChanged)
 
+        self.gradeAccuracy.clicked.connect((lambda _=None,
+                                                          icon=FIF.CODE,
+                                                          title='Эта функция пока не готова',
+                                                          content='Ожидайте в следующей версии программы.',
+                                                          target=self.gradeAccuracy: self.showFlyout(_, icon, title, content, target)))
+        self.gradeAccuracySwitchButton.setEnabled(False)
+
 
     def gradePercentageChanged(self):
         if self.gradeShowPercentageSwitchButton.checked:
@@ -485,7 +521,7 @@ class EditorInterface(Ui_EditorInterface, QWidget):
         self.gradePolicy = [[i, i / int(self.gradeMaxCountSpinBox.value()) * 100] for i in range(int(self.gradeMaxCountSpinBox.value()), 0, -1)]
 
     def showGradeSettingsBox(self):
-        w = CustomGradeSettingsBox(self.window(), self.gradePolicy)
+        w = TestGradeSettingsBox(self.window(), self.gradePolicy)
         if w.exec():
             gradePolicy = []
             for label, edit in w.gradePolicy:
@@ -520,6 +556,13 @@ class EditorInterface(Ui_EditorInterface, QWidget):
 
         self.settingsSecondTryIcon.setIcon(FluentIcon.SYNC)
         self.settingsPasswordIcon.setIcon(FluentIcon.FINGERPRINT)
+        self.settingsPassword.clicked.connect((lambda _=None,
+                                                          icon=FIF.CODE,
+                                                          title='Эта функция пока не готова',
+                                                          content='Ожидайте в следующей версии программы.',
+                                                          target=self.settingsPassword: self.showFlyout(_, icon, title, content, target)))
+        self.settingsPasswordLineEdit.setEnabled(False)
+
     def privacyChanged(self):
         if self.settingsPrivacySwitchButton.checked:
             self.settingsPrivacySwitchButton.checked = False
@@ -554,7 +597,7 @@ class EditorInterface(Ui_EditorInterface, QWidget):
             isClosable=True,
         )
     def showChangeTimeDialog(self, _, label):
-        w = CustomTimeMessageBox(self.window(), label)
+        w = TestChangeTimeBox(self.window(), label)
         if w.exec():
             label.setText(w.TimePicker.time.toString("hh:mm:ss"))
     def jaYstal(self):
@@ -570,10 +613,9 @@ class EditorInterface(Ui_EditorInterface, QWidget):
         self.backButton.setHidden(True)
         self.stackedWidget.setCurrentWidget(self.homePage)
     def showRenameDialog(self):
-        w = CustomMessageBox(self.window(), oldName=self.testNameLabel.text())
+        w = TestRenameTestBox(self.window(), oldName=self.testNameLabel.text())
         if w.exec(): self.testNameLabel.setText(w.newName)
     def fillHomePage(self):
-        self.switchToWidget(stackedWidget=self.mainStackedWidget, widget='pageChoose')
         self.chooseFileIcon.setIcon(FluentIcon.SHARE)
         self.newFileIconButton.clicked.connect((lambda _=None, stackedWidget=self.mainStackedWidget, widget='pageEditor': self.switchToWidget(_, stackedWidget, widget)))
         self.newFileIconButton.setIcon(FluentIcon.FOLDER_ADD)
@@ -591,12 +633,20 @@ class EditorInterface(Ui_EditorInterface, QWidget):
         self.helpIcon.setIcon(FIF.HELP)
         self.helpLabel.setText('Руководство')
         self.helpButton.setText('Открыть')
-        self.helpButton.clicked.connect(self.echo)
+        self.helpButton.clicked.connect((lambda _=None,
+                                                          icon=FIF.CODE,
+                                                          title='Эта функция пока не готова',
+                                                          content='Ожидайте в следующей версии программы.',
+                                                          target=self.helpButton: self.showFlyout(_, icon, title, content, target)))
 
         self.moreIcon.setIcon(FIF.CALORIES)
         self.moreLabel.setText('Новые функции')
         self.moreButton.setText('Посмотреть')
-        self.moreButton.clicked.connect(self.echo)
+        self.moreButton.clicked.connect((lambda _=None,
+                                                          icon=FIF.CODE,
+                                                          title='Эта функция пока не готова',
+                                                          content='Ожидайте в следующей версии программы.',
+                                                          target=self.moreButton: self.showFlyout(_, icon, title, content, target)))
 
         self.editQuestionsIcon.setIcon(FIF.MENU)
         self.editQuestionsLabel.setText('Вопросы')
@@ -628,114 +678,3 @@ class EditorInterface(Ui_EditorInterface, QWidget):
         self.backButton.setHidden(False)
         widget = self.findChild(QWidget, f'{widget}Widget')
         stackedWidget.setCurrentWidget(widget)
-
-
-class CustomGradeSettingsBox(MessageBoxBase):
-    def __init__(self, parent=None, gradePolicy=None):
-        super().__init__(parent)
-        self.viewLayout.addWidget(SubtitleLabel('Настроить баллы', self))
-        self.gradePolicy = []
-        if gradePolicy:
-            for i in gradePolicy:
-                self.gradeLayout = QHBoxLayout()
-                self.subLabel = BodyLabel(str(i[0]), self)
-                self.subLabel.setFixedWidth(15)
-                self.subLabel.setAlignment(Qt.AlignVCenter)
-
-                self.slider = Slider(self)
-                self.subLabelPercentage = LineEdit(self)
-                self.slider.valueChanged.connect(lambda value, lineEdit=self.subLabelPercentage: self.updateLineEditFromSlider(value, lineEdit))
-                self.slider.setOrientation(Qt.Horizontal)
-                self.slider.setFixedWidth(200)
-                self.slider.setMaximum(100)
-                self.slider.setValue(int(i[1]))
-
-                self.subLabelPercentage.textChanged.connect(lambda text, slider=self.slider: self.updateSliderFromLineEdit(text, slider))
-                self.subLabelPercentage.setFixedWidth(50)
-                self.subLabelPercentage.setMaxLength(3)
-                self.subLabelPercentage.setAlignment(Qt.AlignHCenter)
-                self.subLabelPercentage.setText(str(int(i[1])))
-
-                self.gradeLayout.addWidget(self.subLabel)
-                self.gradeLayout.addWidget(self.slider)
-                self.gradeLayout.addWidget(self.subLabelPercentage)
-                self.viewLayout.addLayout(self.gradeLayout)
-                self.gradePolicy.append((self.subLabel, self.subLabelPercentage))
-
-
-        self.subLabel = BodyLabel('Какой процент правильных ответов для получения оценки', self)
-        self.viewLayout.addWidget(self.subLabel)
-
-    def updateLineEditFromSlider(self, value, lineEdit):
-        lineEdit.blockSignals(True)
-        lineEdit.setText(f'{value}')
-        lineEdit.blockSignals(False)
-
-    def updateSliderFromLineEdit(self, text, slider):
-        try:
-            value = int(text)
-            if 0 <= value <= 100:
-                slider.setValue(value)
-        except ValueError:
-            pass
-
-class CustomMessageBox(MessageBoxBase):
-    """ Custom message box """
-
-    def __init__(self, parent=None, oldName='Новый тест'):
-        super().__init__(parent)
-        self.oldName = oldName
-        self.newName = self.oldName
-        self.titleLabel = SubtitleLabel(self.tr('Переименовать тест'), self)
-        self.viewLayout.addWidget(self.titleLabel)
-
-        self.LineEdit = LineEdit(self)
-        self.LineEdit.setText(oldName)
-        self.LineEdit.setPlaceholderText(self.tr('Название'))
-        self.LineEdit.setClearButtonEnabled(True)
-        self.LineEdit.setMaxLength(120)
-        self.viewLayout.addWidget(self.LineEdit)
-
-        self.yesButton.setText(self.tr('Применить'))
-        self.yesButton.setShortcut("Return")
-        self.cancelButton.setText(self.tr('Назад'))
-        self.cancelButton.setShortcut("Esc")
-
-        self.widget.setMinimumWidth(360)
-        self.yesButton.setDisabled(True)
-        self.LineEdit.textChanged.connect(self.ifTextInput)
-
-    def ifTextInput(self, text):
-        self.yesButton.setEnabled(bool(text))
-        self.newName = text
-        if self.newName == self.oldName:
-            self.yesButton.setEnabled(False)
-
-class CustomTimeMessageBox(MessageBoxBase):
-    """ Custom message box """
-
-    def __init__(self, parent, label=None):
-        super().__init__(parent)
-        self.oldTime = '0'
-        self.newTime = self.oldTime
-        self.titleLabel = SubtitleLabel('Изменить время', self)
-        self.viewLayout.addWidget(self.titleLabel)
-
-        self.TimePicker = TimePicker(self)
-        self.TimePicker.setTime(QTime(0, 0, 0))
-        self.TimePicker.setSecondVisible(True)
-        if label:
-            total_seconds = time_to_seconds(label.text())
-            hours = total_seconds // 3600
-            minutes = (total_seconds % 3600) // 60
-            seconds = total_seconds % 60
-            self.TimePicker.setTime(QTime(hours, minutes, seconds))
-        self.viewLayout.addWidget(self.TimePicker)
-
-        self.subLabel = BodyLabel('Выберите время в формате: hh:mm:ss', self)
-        self.viewLayout.addWidget(self.subLabel)
-
-        self.yesButton.setText(self.tr('Применить'))
-        self.yesButton.setShortcut("Return")
-        self.cancelButton.setText(self.tr('Назад'))
-        self.cancelButton.setShortcut("Esc")
