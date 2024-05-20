@@ -22,13 +22,13 @@ from qfluentwidgets import (Action, DropDownPushButton, DropDownToolButton, Push
                             CustomStyleSheet, SubtitleLabel, LineEdit, CaptionLabel)
 from qfluentwidgets import FluentIcon as FIF
 
-from .TestInterface import TestInterface, Question
+from .test_interface import TestInterface, Question
 from .Ui_DevelopInterface import Ui_DevelopInterface
 from qfluentwidgets import FluentIcon as FIF
 from qfluentwidgets import Theme, Action
-from ...common.config import cfg
-from ...common.icon import Icon
-from ...common.style_sheet import StyleSheet
+from app.common.config import cfg
+from app.common.icon import Icon
+from app.common.style_sheet import StyleSheet
 
 class CustomMessageBox(MessageBoxBase):
     """ Custom message box """
@@ -41,7 +41,7 @@ class CustomMessageBox(MessageBoxBase):
         self.userNameEdit = SearchLineEdit(self)
         self.userNameEdit.setPlaceholderText(self.tr('Имя Фамилия'))
         self.userNameEdit.setClearButtonEnabled(True)
-        self.userNameEdit.setMaxLength(30)
+        self.userNameEdit.setMaxLength(50)
         self.completerNames = cfg.get(cfg.userHistory)
         completer = QCompleter(self.completerNames, self.userNameEdit)
         completer.setCaseSensitivity(Qt.CaseInsensitive)
@@ -49,18 +49,22 @@ class CustomMessageBox(MessageBoxBase):
         self.userNameEdit.setCompleter(completer)
         self.viewLayout.addWidget(self.userNameEdit)
 
-        self.yesButton.setText(self.tr('Начать тест'))
+        self.yesButton.setText('Начать тест')
         self.yesButton.setShortcut("Return")
         self.yesButton.setIcon(FIF.PLAY)
-        self.cancelButton.setText(self.tr('Отменить'))
+        self.cancelButton.setText('Отменить')
         self.cancelButton.setShortcut("Esc")
 
-        self.widget.setMinimumWidth(360)
+        self.widget.setMinimumWidth(400)
         self.yesButton.setDisabled(True)
         self.userNameEdit.textChanged.connect(self.ifTextInput)
 
     def ifTextInput(self, text):
-        self.yesButton.setEnabled(bool(text))
+        if len(text.split()) >= 2:
+            self.yesButton.setEnabled(True)
+        else:
+            self.yesButton.setEnabled(False)
+
 
 class DevelopInterface(Ui_DevelopInterface, QWidget):
 
@@ -73,6 +77,10 @@ class DevelopInterface(Ui_DevelopInterface, QWidget):
         self.name = None
         self._initInterface()
         self.createdFileInterfaces = []
+        # newTestInterface = TestInterface(self, filePath='D:/Users/luv/Desktop/Testify/Новый тест.tstf', userName='Данила Данилов')
+        # newTestInterface.setObjectName('D:/Users/luv/Desktop/Testify/Новый тест.tstf')
+        # self.addInterfaceToSuperview(newTestInterface, 'D:/Users/luv/Desktop/Testify/Новый тест.tstf')
+        # self.parent.switchTo(newTestInterface)
 
     def _initInterface(self):
 
@@ -81,13 +89,7 @@ class DevelopInterface(Ui_DevelopInterface, QWidget):
 
         self.ChooseFileButton.setIcon(FIF.FOLDER)
         self.ChooseFileDrop.setIcon(FIF.SEND)
-        self.ChooseFileLabel.setText('Выберите файл теста')
-        self.ChooseFileButton.setText('Обзор')
-        self.ChooseFileDrop.setText('Из недавних')
 
-        StyleSheet.HOME_INTERFACE.apply(self)
-        # self.setShadowEffect(self.ChooseFileSpace)
-        self.setShadowEffect(self.CardWidget)
 
         self.LastSeenFill()
 

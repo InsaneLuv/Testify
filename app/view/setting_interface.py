@@ -22,29 +22,7 @@ class SettingInterface(ScrollArea):
         super().__init__(parent=parent)
         self.scrollWidget = QWidget()
         self.expandLayout = ExpandLayout(self.scrollWidget)
-
-        # setting label
         self.settingLabel = QLabel(self.tr("Настройки"), self)
-
-        # music folders
-        # self.musicInThisPCGroup = SettingCardGroup(
-        #     self.tr("Music on this PC"), self.scrollWidget)
-        # self.musicFolderCard = FolderListSettingCard(
-        #     cfg.musicFolders,
-        #     self.tr("Local music library"),
-        #     directory=QStandardPaths.writableLocation(
-        #         QStandardPaths.MusicLocation),
-        #     parent=self.musicInThisPCGroup
-        # )
-        # self.downloadFolderCard = PushSettingCard(
-        #     self.tr('Choose folder'),
-        #     FIF.DOWNLOAD,
-        #     self.tr("Download directory"),
-        #     cfg.get(cfg.downloadFolder),
-        #     self.musicInThisPCGroup
-        # )
-
-        # personalization
         self.personalGroup = SettingCardGroup(
             self.tr('Оформление'), self.scrollWidget
         )
@@ -77,14 +55,6 @@ class SettingInterface(ScrollArea):
             ],
             parent=self.personalGroup
         )
-        # self.languageCard = ComboBoxSettingCard(
-        #     cfg.language,
-        #     FIF.LANGUAGE,
-        #     self.tr('Language'),
-        #     self.tr('Set your preferred language for UI'),
-        #     texts=['简体中文', '繁體中文', 'English', self.tr('Use system setting')],
-        #     parent=self.personalGroup
-        # )
 
         # material
         self.materialGroup = SettingCardGroup(
@@ -96,29 +66,8 @@ class SettingInterface(ScrollArea):
             self.tr('Больше радиус - сильнее размытие.'),
             self.materialGroup
         )
-
-        # update software
-        # self.updateSoftwareGroup = SettingCardGroup(
-        #     self.tr("Software update"), self.scrollWidget)
-        # self.updateOnStartUpCard = SwitchSettingCard(
-        #     FIF.UPDATE,
-        #     self.tr('Check for updates when the application starts'),
-        #     self.tr('The new version will be more stable and have more features'),
-        #     configItem=cfg.checkUpdateAtStartUp,
-        #     parent=self.updateSoftwareGroup
-        # )
-
         # application
         self.aboutGroup = SettingCardGroup(self.tr('Другое'), self.scrollWidget)
-        # self.helpCard = HyperlinkCard(
-        #     HELP_URL,
-        #     self.tr('Open help page'),
-        #     FIF.HELP,
-        #     self.tr('Help'),
-        #     self.tr(
-        #         'Discover new features and learn useful tips about PyQt-Fluent-Widgets'),
-        #     self.aboutGroup
-        # )
         self.feedbackCard = PrimaryPushSettingCard(
             self.tr('Обратная связь'),
             FIF.FEEDBACK,
@@ -130,18 +79,10 @@ class SettingInterface(ScrollArea):
         self.themeColorCard = CustomColorSettingCard(
             cfg.themeColor,
             FIF.PALETTE,
-            self.tr('Цвета темы'),
+            self.tr('Цвет темы'),
             self.tr('Изменить цвет элементов интерфейса.'),
             self.personalGroup
         )
-        # self.aboutCard = PrimaryPushSettingCard(
-        #     self.tr('Check update'),
-        #     FIF.INFO,
-        #     self.tr('About'),
-        #     '© ' + self.tr('Copyright') + f" {YEAR}, {AUTHOR}. " +
-        #     self.tr('Version') + " " + VERSION,
-        #     self.aboutGroup
-        # )
 
         self.__initWidget()
 
@@ -166,10 +107,6 @@ class SettingInterface(ScrollArea):
 
     def __initLayout(self):
         self.settingLabel.move(36, 30)
-
-        # add cards to group
-        # self.musicInThisPCGroup.addSettingCard(self.musicFolderCard)
-        # self.musicInThisPCGroup.addSettingCard(self.downloadFolderCard)
 
         self.personalGroup.addSettingCard(self.micaCard)
         self.personalGroup.addSettingCard(self.themeCard)

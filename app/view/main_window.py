@@ -1,21 +1,49 @@
 # coding: utf-8
 from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QApplication, QMessageBox
 
 from qfluentwidgets import (NavigationItemPosition, FluentWindow,
-                            SplashScreen)
+                            SplashScreen, MessageBoxBase, SubtitleLabel, BodyLabel)
 from qfluentwidgets import FluentIcon as FIF
 
-from .custom.DevelopInterface import DevelopInterface
-from .custom.EditorInterface import EditorInterface
-from .gallery_interface import GalleryInterface
+from app.view.develop_interface import DevelopInterface
+from app.view.editor_interface import EditorInterface
 from .home_interface import HomeInterface
 from .setting_interface import SettingInterface
 from ..common.config import cfg
-from ..common.signal_bus import signalBus
-from ..common.translator import Translator
 from ..common import resource
+from .test_interface import TimerManager
+
+class CustomMessageBox(MessageBoxBase):
+    def __init__(self, parent, title=None, message=None):
+        super().__init__(parent)
+
+        self.cancelButton.setEnabled(False)
+
+        self.titleLabel = SubtitleLabel(title, self)
+        self.viewLayout.addWidget(self.titleLabel)
+
+        self.subLabel = BodyLabel(message, self)
+        self.viewLayout.addWidget(self.subLabel)
+
+        self.widget.setMinimumWidth(360)
+
+        self.yesButton.setText('Отменить')
+        self.yesButton.setShortcut("Return")
+
+        self.cancelButton.setText(f'Выйти')
+
+        self.timer = TimerManager(3 / 60, self.updateCancelButton, self.enableCancelButton)
+        self.timer.start_timer()
+
+    def enableCancelButton(self):
+        self.cancelButton.setEnabled(True)
+        self.cancelButton.setText(f'Выйти')
+
+    def updateCancelButton(self, time):
+        self.cancelButton.setText(f'Выйти ({time.toString("s")})')
+
 
 
 class MainWindow(FluentWindow):
@@ -33,6 +61,19 @@ class MainWindow(FluentWindow):
 
         self.initNavigation()
         self.splashScreen.finish()
+        self.alertMessage = None
+
+        self.closeEvent = self.closeEvent
+
+    def closeEvent(self, event):
+        if self.alertMessage:
+            w = CustomMessageBox(self, 'Закрыть окно', self.alertMessage)
+            if not w.exec():
+                event.accept()
+            else:
+                event.ignore()
+        else:
+            event.accept()
 
     def addNewSubInterface(self, interface, icon, name):
         self.addSubInterface(interface, icon, name)
@@ -44,7 +85,7 @@ class MainWindow(FluentWindow):
         self.addSubInterface(self.editorInterface, FIF.EDIT, 'Редактор')
         self.navigationInterface.addSeparator()
         self.addSubInterface(self.settingInterface, FIF.SETTING, self.tr('Настройки'), NavigationItemPosition.BOTTOM)
-        self.switchTo(self.editorInterface)
+        self.switchTo(self.developInterface)
 
     def initWindow(self):
         self.resize(1000, 700)

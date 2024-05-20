@@ -2,15 +2,20 @@
 import time
 import json
 import uuid
+
+from PyQt5.QtGui import QCursor, QColor
+
 from .Ui_EditorInterface import Ui_EditorInterface
-from PyQt5.QtWidgets import QWidget, QGraphicsDropShadowEffect, QCompleter
-from qfluentwidgets import MessageBoxBase, SearchLineEdit, FluentIcon, TimePicker
-from PyQt5.QtCore import Qt, QSize, QPoint, QTime
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QAction, QGridLayout, QFrame, QHBoxLayout, QSizePolicy, QFileDialog
+from PyQt5.QtWidgets import QWidget, QGraphicsDropShadowEffect, QCompleter, QLabel, QGraphicsOpacityEffect, QGraphicsBlurEffect
+from qfluentwidgets import MessageBoxBase, SearchLineEdit, FluentIcon, TimePicker, ExpandLayout, InfoBar, \
+    InfoBarPosition, Flyout, InfoBarIcon, BodyLabel, Slider, FluentIconBase
+from PyQt5.QtCore import Qt, QSize, QPoint, QTime, QPropertyAnimation, QEasingCurve, pyqtSlot, QRect
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QAction, QGridLayout, QFrame, QHBoxLayout, QSizePolicy, QFileDialog, QTableWidgetItem
 from qfluentwidgets import SubtitleLabel, LineEdit, PushButton, CheckBox, RadioButton, ComboBox, ScrollArea, ToolButton, SimpleCardWidget
 from qfluentwidgets import FluentIcon as FIF
-from ...common.config import cfg
-
+from app.common.config import cfg
+from ..common.style_sheet import StyleSheet
+from cryptography.fernet import Fernet
 def time_to_seconds(time_str):
     hours, minutes, seconds = map(int, time_str.split(':'))
     total_seconds = hours * 3600 + minutes * 60 + seconds
@@ -27,10 +32,17 @@ class EQuestionHandler:
         question = EQuestion(self)
         question.create_new_question()
         self.question_list.append(question)
-
         self.ui.questions_container.layout().insertLayout(0, question.soft_frame_layout)
-
         self.trigger_on_change()
+
+    def generate_key(self):
+        return Fernet.generate_key()
+
+    def encrypt_data(self, data, key):
+        fernet = Fernet(key)
+        encrypted_data = fernet.encrypt(data.encode())
+        return encrypted_data
+
 
     def save_quiz(self, filename):
         manifest = {
@@ -54,12 +66,36 @@ class EQuestionHandler:
         manifest['creator_name'] = 'UNSET'
         manifest['created_at'] = time.time()
         manifest['total_questions'] = len(manifest['questions'])
-        manifest['time'] = time_to_seconds(self.ui.settingsTimeChangeButton.text())
+        manifest['timeSec'] = time_to_seconds(self.ui.settingsTimeChangeButton.text())
+        manifest['showAnswers'] = self.ui.settingsPrivacySwitchButton.checked
+        manifest['showAnswersLaterSec'] = time_to_seconds(self.ui.settingsPrivacyLaterChangeButton.text())
+        manifest['secondTrySec'] = time_to_seconds(self.ui.settingsSecondTryButton.text())
+        manifest['password'] = self.ui.settingsPasswordLineEdit.text()
+        manifest['gradePolicy'] = self.ui.gradePolicy
+        manifest['gradeLaterSec'] = time_to_seconds(self.ui.gradeShowLaterChangeButton.text())
+        manifest['gradeShowPercent'] = self.ui.gradeShowPercentageSwitchButton.checked
+        manifest['gradeAccuracy'] = self.ui.gradeAccuracySwitchButton.checked
 
-        fileName, _ = QFileDialog.getSaveFileName(self.ui, "Сохранить тест", self.ui.testNameLabel.text(), "Testify Extension(*.tstf)")
+        manifest_json = json.dumps(manifest, ensure_ascii=False, indent=4)
+        key = self.generate_key()
+        encrypted_data = self.encrypt_data(manifest_json, key)
+
+        fileName, _ = QFileDialog.getSaveFileName(self.ui, "Сохранить тест", self.ui.testNameLabel.text(),
+                                                  "Testify Extension(*.tstf)")
         if fileName:
-            with open(fileName, 'w', encoding='utf-8') as f:
-                json.dump(manifest, f, ensure_ascii=False, indent=4)
+            with open(fileName, 'wb') as f:
+                f.write(key + b'AS_ABii_' + encrypted_data)  # Save key and encrypted data together
+            self.__showSaveTooltip(fileName)
+
+    def __showSaveTooltip(self, fileName):
+        InfoBar.success(
+            'Тест сохранён.',
+            fileName,
+            duration=3000,
+            parent=self.ui,
+            position=InfoBarPosition.TOP,
+            isClosable=False
+        )
 
 
     def remove_question(self, question):
@@ -72,17 +108,14 @@ class EQuestionHandler:
                 widget.deleteLater()
             else:
                 layout.removeItem(item)
-        question.soft_frame.deleteLater()  # Удаляем сам фрейм
+        question.soft_frame.deleteLater()
         self.trigger_on_change()
 
     def trigger_on_change(self):
         print(self.question_list)
-
-
 class Defaults:
     SOFT_FRAME_HEIGHT = 300
     FOOTER_SCROLL_AREA_HEIGHT = 150
-
 class EQuestion:
     def __init__(self, handler):
         self.handler = handler
@@ -374,13 +407,11 @@ class EQuestion:
             self.footer_scroll_area.setFixedHeight(self.defaults.FOOTER_SCROLL_AREA_HEIGHT)
             self.collapse_button.setIcon(FIF.HIDE)
             self.footer_frame.setVisible(True)
-
 class Variant:
     def __init__(self, unique_id, text, is_checked=False):
         self.id = unique_id
         self.text = text
         self.is_checked = is_checked
-
 class NoWheelComboBox(ComboBox):
     def wheelEvent(self, event):
         # Игнорируем событие колеса мыши
@@ -393,8 +424,9 @@ class EditorInterface(Ui_EditorInterface, QWidget):
         self.setObjectName('editorInterface')
         self.setupUi(self)
         self._initInterface()
-
     def _initInterface(self):
+
+        self.backButton.setHidden(False)
         self.renameWindow = CustomMessageBox(self.window())
         self.headerLabel.setText('Редактор')
 
@@ -411,61 +443,147 @@ class EditorInterface(Ui_EditorInterface, QWidget):
         self.addNewButton.clicked.connect(self.rysyProtifYasherov)
         self.addNewButton.setText('Добавить')
         self.addNewButton.setIcon(FIF.ADD)
-
         self.hideAllButton.clicked.connect(self.jaYstal)
-        self.hideAllButton.setText('Скрыть всё')
+        self.hideAllButton.setText('Скрыть все')
         self.hideAllButton.setIcon(FIF.REMOVE)
 
         self.fillHomePage()
         self.fillSettingsQuestionWidget()
+        self.fillGradeQuestionWidget()
+
+    def fillGradeQuestionWidget(self):
+        self.gradeMaxCountIcon.setIcon(FluentIcon.SPEED_HIGH)
+        self.gradeMaxCountSpinBox.valueChanged.connect(self.updatePolicy)
+        self.gradeMaxCountSpinBox.setValue(5)
+        self.gradeMaxCount.clicked.connect(self.showGradeSettingsBox)
+        self.updatePolicy()
+
+        self.gradeShowLaterIcon.setIcon(FluentIcon.VIEW)
+        self.gradeShowLater.clicked.connect((lambda _=None, label=self.gradeShowLaterChangeButton: self.showChangeTimeDialog(_,label)))
+        self.gradeShowLaterChangeButton.clicked.connect((lambda _=None, label=self.gradeShowLaterChangeButton: self.showChangeTimeDialog(_,label)))
+
+        self.gradeAccuracyIcon.setIcon(FluentIcon.FILTER)
+        self.gradeAccuracy.clicked.connect(self.gradeAccuracyChanged)
+
+
+        self.gradeShowPercentageIcon.setIcon(FluentIcon.SEARCH)
+        self.gradeShowPercentage.clicked.connect(self.gradePercentageChanged)
+
+
+    def gradePercentageChanged(self):
+        if self.gradeShowPercentageSwitchButton.checked:
+            self.gradeShowPercentageSwitchButton.checked = False
+        else:
+            self.gradeShowPercentageSwitchButton.checked = True
+
+    def gradeAccuracyChanged(self):
+        if self.gradeAccuracySwitchButton.checked:
+            self.gradeAccuracySwitchButton.checked = False
+        else:
+            self.gradeAccuracySwitchButton.checked = True
+    def updatePolicy(self):
+        self.gradePolicy = [[i, i / int(self.gradeMaxCountSpinBox.value()) * 100] for i in range(int(self.gradeMaxCountSpinBox.value()), 0, -1)]
+
+    def showGradeSettingsBox(self):
+        w = CustomGradeSettingsBox(self.window(), self.gradePolicy)
+        if w.exec():
+            gradePolicy = []
+            for label, edit in w.gradePolicy:
+                grade = [int(label.text()), int(edit.text())]
+                gradePolicy.append(grade)
+            self.gradePolicy = gradePolicy
+
+    def setShadowEffect(self, card: QWidget, color: QColor):
+        shadowEffect = QGraphicsDropShadowEffect(self)
+        shadowEffect.setColor(color)
+        shadowEffect.setBlurRadius(50)
+        shadowEffect.setOffset(0, 0)
+        card.setGraphicsEffect(shadowEffect)
 
     def fillSettingsQuestionWidget(self):
-        self.settingsTime.clicked.connect(self.showChangeTimeDialog)
-        self.settingsTimeChangeButton.clicked.connect(self.showChangeTimeDialog)
+        self.settingsTime.clicked.connect((lambda _=None, label=self.settingsTimeChangeButton: self.showChangeTimeDialog(_,label)))
+        self.settingsTimeChangeButton.clicked.connect((lambda _=None, label=self.settingsTimeChangeButton: self.showChangeTimeDialog(_,label)))
         self.settingsTimeIcon.setIcon(FluentIcon.STOP_WATCH)
 
         self.settingsPrivacy.clicked.connect(self.privacyChanged)
         self.settingsPrivacyIcon.setIcon(FluentIcon.VIEW)
+        self.settingsPrivacyLaterIcon.setIcon(FluentIcon.VIEW)
+        self.settingsPrivacyLater.setEnabled(False)
+        self.settingsPrivacyLaterChangeButton.clicked.connect((lambda _=None, label=self.settingsPrivacyLaterChangeButton: self.showChangeTimeDialog(_,label)))
+        self.settingsPrivacyLater.clicked.connect((lambda _=None, label=self.settingsPrivacyLaterChangeButton: self.showChangeTimeDialog(_,label)))
+        self.settingsPrivacySwitchButton.checkedChanged.connect(self.handlePrivacy)
         self.privacyChanged()
 
-        self.settingsGrade.clicked.connect(self.showChangeTimeDialog)
-        self.settingsGradeIcon.setIcon(FluentIcon.UNIT)
-        self.settingsGradeGoIcon.setIcon(FluentIcon.CHEVRON_RIGHT)
+        self.settingsSecondTry.clicked.connect((lambda _=None, label=self.settingsSecondTryButton: self.showChangeTimeDialog(_,label)))
+        self.settingsSecondTryButton.clicked.connect((lambda _=None, label=self.settingsSecondTryButton: self.showChangeTimeDialog(_,label)))
 
+
+        self.settingsSecondTryIcon.setIcon(FluentIcon.SYNC)
+        self.settingsPasswordIcon.setIcon(FluentIcon.FINGERPRINT)
     def privacyChanged(self):
-        if self.question_handler.hideAnswers:
-            self.question_handler.hideAnswers = False
-            self.settingsPrivacyGoIcon.setIcon(FluentIcon.CLOSE)
+        if self.settingsPrivacySwitchButton.checked:
+            self.settingsPrivacySwitchButton.checked = False
         else:
+            self.settingsPrivacySwitchButton.checked = True
+    def handlePrivacy(self):
+        if self.settingsPrivacySwitchButton.checked:
+            self.__setVisible(self.settingsPrivacyLater, True)
             self.question_handler.hideAnswers = True
-            self.settingsPrivacyGoIcon.setIcon(FluentIcon.ACCEPT)
+        else:
+            self.__setVisible(self.settingsPrivacyLater, False)
+            self.question_handler.hideAnswers = False
+    def __setVisible(self,obj, status):
+        if not status:
+            self.setObjectOpactiy(obj,opacity=0.5)
+            obj.setEnabled(False)
+        else:
+            self.setObjectOpactiy(obj,opacity=1.0)
+            obj.setEnabled(True)
+    def setObjectOpactiy(self, obj, opacity=1.0):
+        opacity_effect = QGraphicsOpacityEffect()
+        opacity_effect.setOpacity(opacity)
+        obj.setGraphicsEffect(opacity_effect)
 
-    def showChangeTimeDialog(self):
-        w = CustomTimeMessageBox(self.window())
+    def showFlyout(self,_ , icon, title, content, target):
+        Flyout.create(
+            icon=icon,
+            title=title,
+            content=content,
+            target=target,
+            parent=self,
+            isClosable=True,
+        )
+    def showChangeTimeDialog(self, _, label):
+        w = CustomTimeMessageBox(self.window(), label)
         if w.exec():
-            self.settingsTimeChangeButton.setText(w.TimePicker.time.toString("hh:mm:ss"))
-
+            label.setText(w.TimePicker.time.toString("hh:mm:ss"))
     def jaYstal(self):
         for question in self.question_handler.question_list:
             question.is_footer_visible = True
             question.toggle_footer_visibility()
-
     def rysyProtifYasherov(self):
         self.question_handler.add_question()
-
+        self.editQuestionsBadge.setText(str(len(self.question_handler.question_list)))
     def saveQuiz(self):
         self.question_handler.save_quiz('test.json')
-
-    # ВРЕМЕННЫЙ КЛАСС
     def goHome(self):
         self.backButton.setHidden(True)
         self.stackedWidget.setCurrentWidget(self.homePage)
-
     def showRenameDialog(self):
         w = CustomMessageBox(self.window(), oldName=self.testNameLabel.text())
         if w.exec(): self.testNameLabel.setText(w.newName)
-
     def fillHomePage(self):
+        self.switchToWidget(stackedWidget=self.mainStackedWidget, widget='pageChoose')
+        self.chooseFileIcon.setIcon(FluentIcon.SHARE)
+        self.newFileIconButton.clicked.connect((lambda _=None, stackedWidget=self.mainStackedWidget, widget='pageEditor': self.switchToWidget(_, stackedWidget, widget)))
+        self.newFileIconButton.setIcon(FluentIcon.FOLDER_ADD)
+        self.chooseFileIconButton.clicked.connect((lambda _=None,
+                                                          icon=FIF.CODE,
+                                                          title='Эта функция пока не готова',
+                                                          content='Ожидайте в следующей версии программы.',
+                                                          target=self.pageChooseChooseFile: self.showFlyout(_, icon, title, content, target)))
+        self.chooseFileIconButton.setIcon(FluentIcon.EDIT)
+
         self.testNameLabel.setText('Новый тест')
         self.testNameChangeButton.setText('Переименовать')
         self.testNameChangeButton.clicked.connect(self.showRenameDialog)
@@ -484,27 +602,82 @@ class EditorInterface(Ui_EditorInterface, QWidget):
         self.editQuestionsLabel.setText('Вопросы')
         self.editQuestionsSubLabel.setText('Добавить/Редактировать вопросы')
         self.editQuestionsGoIcon.setIcon(FIF.CHEVRON_RIGHT)
-        self.editQuestions.clicked.connect(lambda _=None, widget=self.editQuestions.objectName(): self.switchToWidget(_, widget))
+        self.editQuestionsBadge.setText(str(len(self.question_handler.question_list)))
+        self.editQuestions.clicked.connect(lambda _=None, stackedWidget=self.stackedWidget, widget=self.editQuestions.objectName(): self.switchToWidget(_, stackedWidget, widget))
 
         self.settingsQuestionIcon.setIcon(FIF.SETTING)
         self.settingsQuestionLabel.setText('Настройки')
         self.settingsQuestionSubLabel.setText('Оценка, доступ, и др.')
         self.settingsQuestionGoIcon.setIcon(FIF.CHEVRON_RIGHT)
-        self.settingsQuestion.clicked.connect(lambda _=None, widget=self.settingsQuestion.objectName(): self.switchToWidget(_, widget))
-        self.settingsQuestion.setEnabled(True)
+        self.settingsQuestion.clicked.connect(lambda _=None, stackedWidget=self.stackedWidget, widget=self.settingsQuestion.objectName(): self.switchToWidget(_, stackedWidget, widget))
+
+
+        self.gradeQuestionIcon.setIcon(FluentIcon.CERTIFICATE)
+        self.gradeQuestionLabel.setText('Оценка')
+        self.gradeQuestionSubLabel.setText('Настройка политики оценки')
+        self.gradeQuestionGoIcon.setIcon(FluentIcon.CHEVRON_RIGHT)
+        self.gradeQuestion.clicked.connect(lambda _=None, stackedWidget=self.stackedWidget, widget=self.gradeQuestion.objectName(): self.switchToWidget(_, stackedWidget, widget))
 
 
     def echo(self):
         print('click')
 
-    def switchToWidget(self, _=None, widget=None):
+    @pyqtSlot()
+    def switchToWidget(self, _=None, stackedWidget=None, widget=None):
+        self.parent.alertMessage = f'Вы уверены что хотите выйти без сохранения теста?'
         self.backButton.setHidden(False)
         widget = self.findChild(QWidget, f'{widget}Widget')
-        self.stackedWidget.setCurrentWidget(widget)
+        stackedWidget.setCurrentWidget(widget)
 
 
-    def debug(self):
-        self.stackedWidget.setCurrentWidget('widget')
+class CustomGradeSettingsBox(MessageBoxBase):
+    def __init__(self, parent=None, gradePolicy=None):
+        super().__init__(parent)
+        self.viewLayout.addWidget(SubtitleLabel('Настроить баллы', self))
+        self.gradePolicy = []
+        if gradePolicy:
+            for i in gradePolicy:
+                self.gradeLayout = QHBoxLayout()
+                self.subLabel = BodyLabel(str(i[0]), self)
+                self.subLabel.setFixedWidth(15)
+                self.subLabel.setAlignment(Qt.AlignVCenter)
+
+                self.slider = Slider(self)
+                self.subLabelPercentage = LineEdit(self)
+                self.slider.valueChanged.connect(lambda value, lineEdit=self.subLabelPercentage: self.updateLineEditFromSlider(value, lineEdit))
+                self.slider.setOrientation(Qt.Horizontal)
+                self.slider.setFixedWidth(200)
+                self.slider.setMaximum(100)
+                self.slider.setValue(int(i[1]))
+
+                self.subLabelPercentage.textChanged.connect(lambda text, slider=self.slider: self.updateSliderFromLineEdit(text, slider))
+                self.subLabelPercentage.setFixedWidth(50)
+                self.subLabelPercentage.setMaxLength(3)
+                self.subLabelPercentage.setAlignment(Qt.AlignHCenter)
+                self.subLabelPercentage.setText(str(int(i[1])))
+
+                self.gradeLayout.addWidget(self.subLabel)
+                self.gradeLayout.addWidget(self.slider)
+                self.gradeLayout.addWidget(self.subLabelPercentage)
+                self.viewLayout.addLayout(self.gradeLayout)
+                self.gradePolicy.append((self.subLabel, self.subLabelPercentage))
+
+
+        self.subLabel = BodyLabel('Какой процент правильных ответов для получения оценки', self)
+        self.viewLayout.addWidget(self.subLabel)
+
+    def updateLineEditFromSlider(self, value, lineEdit):
+        lineEdit.blockSignals(True)
+        lineEdit.setText(f'{value}')
+        lineEdit.blockSignals(False)
+
+    def updateSliderFromLineEdit(self, text, slider):
+        try:
+            value = int(text)
+            if 0 <= value <= 100:
+                slider.setValue(value)
+        except ValueError:
+            pass
 
 class CustomMessageBox(MessageBoxBase):
     """ Custom message box """
@@ -541,17 +714,26 @@ class CustomMessageBox(MessageBoxBase):
 class CustomTimeMessageBox(MessageBoxBase):
     """ Custom message box """
 
-    def __init__(self, parent):
+    def __init__(self, parent, label=None):
         super().__init__(parent)
         self.oldTime = '0'
         self.newTime = self.oldTime
-        self.titleLabel = SubtitleLabel(self.tr('Изменить время'), self)
+        self.titleLabel = SubtitleLabel('Изменить время', self)
         self.viewLayout.addWidget(self.titleLabel)
 
         self.TimePicker = TimePicker(self)
         self.TimePicker.setTime(QTime(0, 0, 0))
         self.TimePicker.setSecondVisible(True)
+        if label:
+            total_seconds = time_to_seconds(label.text())
+            hours = total_seconds // 3600
+            minutes = (total_seconds % 3600) // 60
+            seconds = total_seconds % 60
+            self.TimePicker.setTime(QTime(hours, minutes, seconds))
         self.viewLayout.addWidget(self.TimePicker)
+
+        self.subLabel = BodyLabel('Выберите время в формате: hh:mm:ss', self)
+        self.viewLayout.addWidget(self.subLabel)
 
         self.yesButton.setText(self.tr('Применить'))
         self.yesButton.setShortcut("Return")

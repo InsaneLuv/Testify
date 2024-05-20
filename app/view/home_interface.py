@@ -10,7 +10,6 @@ from ..components.link_card import LinkCardView
 from ..components.sample_card import SampleCardView
 from ..common.style_sheet import StyleSheet
 
-
 class BannerWidget(QWidget):
     """ Banner widget """
 
