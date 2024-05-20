@@ -24,6 +24,6 @@ pip install -r requirements.txt
 py .\setup.py build
 ```
 
-## Создано на основе 🧱
+## Кирпичи 🧱
 - https://github.com/zhiyiYo/PyQt-Fluent-Widgets/tree/PyQt5
 - https://github.com/Wanderson-Magalhaes/Modern_GUI_PyDracula_PySide6_or_PyQt6
