@@ -16,3 +16,7 @@
 /out/
 .idea_modules/
 __pycache__
+.idea
+.git
+.venv
+*.tstf

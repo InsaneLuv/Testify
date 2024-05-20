@@ -11,6 +11,7 @@ from qfluentwidgets import FluentIcon as FIF
 from qfluentwidgets import (LineEdit, RadioButton, CheckBox)
 
 from .Ui_TestInterface import Ui_TestInterface
+from .components.crypto import QuizCrypto
 from .components.customBoxBase import NotifyBox
 from .components.tools import TimerManager, time_to_seconds
 
@@ -20,18 +21,14 @@ def time_to_seconds(time_str):
     total_seconds = hours * 3600 + minutes * 60 + seconds
     return total_seconds
 
-def decrypt_data(encrypted_data, key):
-    fernet = Fernet(key)
-    decrypted_data = fernet.decrypt(encrypted_data).decode()
-    return decrypted_data
-
 class TestInterface(Ui_TestInterface, QWidget):
 
-    def __init__(self, parent=None, filePath=None, userName=None):
+    def __init__(self, parent=None, filePath=None, userName=None, data=None):
         self.parent = parent
         parent.parent.alertMessage = f'Вы уверены что хотите выйти до завершения теста?'
         super().__init__(parent=parent)
         self.setupUi(self)
+        self.data = data
 
         self.testNameLabel.setText(filePath)
         self.userNameLabel.setText(userName)
@@ -47,10 +44,6 @@ class TestInterface(Ui_TestInterface, QWidget):
 
         ########################################
         self.QuizWidget = QuizWidget()
-        with open(filePath, 'r', encoding='utf-8') as f:
-            content = f.read()
-            key, encrypted_data = content.split('AS_ABii_', 1)
-            self.data = json.loads(decrypt_data(encrypted_data, key))
 
         quiz_title = self.data.get('quiz_title')
         self.testNameLabel.setText(quiz_title)

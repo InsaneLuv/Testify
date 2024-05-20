@@ -7,7 +7,6 @@ from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QGraphicsDropShadowEffect, QGraphicsOpacityEffect
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QFrame, QHBoxLayout, QSizePolicy, QFileDialog
-from cryptography.fernet import Fernet
 from qfluentwidgets import FluentIcon, InfoBar, \
     InfoBarPosition, Flyout
 from qfluentwidgets import FluentIcon as FIF
@@ -15,7 +14,7 @@ from qfluentwidgets import LineEdit, CheckBox, RadioButton, ComboBox, ScrollArea
 
 from .Ui_EditorInterface import Ui_EditorInterface
 from .components.customBoxBase import TestRenameTestBox, TestChangeTimeBox, TestGradeSettingsBox
-
+from .components.crypto import QuizCrypto
 
 def time_to_seconds(time_str):
     hours, minutes, seconds = map(int, time_str.split(':'))
@@ -35,15 +34,6 @@ class EQuestionHandler:
         self.question_list.append(question)
         self.ui.questions_container.layout().insertLayout(0, question.soft_frame_layout)
         self.trigger_on_change()
-
-    def generate_key(self):
-        return Fernet.generate_key()
-
-    def encrypt_data(self, data, key):
-        fernet = Fernet(key)
-        encrypted_data = fernet.encrypt(data.encode())
-        return encrypted_data
-
 
     def save_quiz(self, filename):
         manifest = {
@@ -78,14 +68,11 @@ class EQuestionHandler:
         manifest['gradeAccuracy'] = self.ui.gradeAccuracySwitchButton.checked
 
         manifest_json = json.dumps(manifest, ensure_ascii=False, indent=4)
-        key = self.generate_key()
-        encrypted_data = self.encrypt_data(manifest_json, key)
-
         fileName, _ = QFileDialog.getSaveFileName(self.ui, "Сохранить тест", self.ui.testNameLabel.text(),
                                                   "Testify Extension(*.tstf)")
         if fileName:
-            with open(fileName, 'wb') as f:
-                f.write(key + b'AS_ABii_' + encrypted_data)  # Save key and encrypted data together
+            crypto = QuizCrypto()
+            crypto.encryptToFile(filePath=fileName, jsonData=manifest_json)
             self.__showSaveTooltip(fileName)
 
     def __showSaveTooltip(self, fileName):

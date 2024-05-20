@@ -1,8 +1,5 @@
 # coding:utf-8
-
-from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QFileDialog
-from PyQt5.QtWidgets import QGraphicsDropShadowEffect
 from PyQt5.QtWidgets import QWidget
 from qfluentwidgets import Action
 from qfluentwidgets import FluentIcon as FIF
@@ -10,7 +7,8 @@ from qfluentwidgets import (RoundMenu)
 
 from app.common.config import cfg
 from .Ui_DevelopInterface import Ui_DevelopInterface
-from .components.customBoxBase import UserNameBox
+from .components.crypto import QuizCrypto
+from .components.customBoxBase import UserNameBox, NotifyBox
 from .test_interface import TestInterface
 
 
@@ -25,10 +23,6 @@ class DevelopInterface(Ui_DevelopInterface, QWidget):
         self.name = None
         self._initInterface()
         self.createdFileInterfaces = []
-        # newTestInterface = TestInterface(self, filePath='D:/Users/luv/Desktop/Testify/Новый тест.tstf', userName='Данила Данилов')
-        # newTestInterface.setObjectName('D:/Users/luv/Desktop/Testify/Новый тест.tstf')
-        # self.addInterfaceToSuperview(newTestInterface, 'D:/Users/luv/Desktop/Testify/Новый тест.tstf')
-        # self.parent.switchTo(newTestInterface)
 
     def _initInterface(self):
 
@@ -51,8 +45,6 @@ class DevelopInterface(Ui_DevelopInterface, QWidget):
             action = Action(FIF.DOCUMENT, filePath)
             action.triggered.connect(self.showCustomDialog)
             action.triggered.connect(lambda _=None, button=action: self.createNewTestInterface(_, button))
-            # action.triggered.connect(self.showCustomDialog)
-
             menu.addAction(action)
 
         self.ChooseFileDrop.setMenu(menu)
@@ -81,16 +73,21 @@ class DevelopInterface(Ui_DevelopInterface, QWidget):
                     self.refill(filePath)
                     self.parent.switchTo(i['interface'])
                     return
+            crypto = QuizCrypto()
+            try:
+                self.data = crypto.decryptFromFile(filePath)
+                newTestInterface = TestInterface(self, filePath=filePath, userName=self.name, data=self.data)
+                newTestInterface.setObjectName(filePath)
+                self.addInterfaceToSuperview(newTestInterface, filePath)
+                self.parent.switchTo(newTestInterface)
+                self.createdFileInterfaces.append({
+                    'name': filePath,
+                    'interface': newTestInterface
+                })
+                self.refill(filePath)
+            except Exception as e:
+                NotifyBox(self.parent, title='Ошибка', message=f'Возникла ошибка при чтении файла. Вероятнее всего файл теста повреждён.').exec()
 
-            newTestInterface = TestInterface(self, filePath=filePath, userName=self.name)
-            newTestInterface.setObjectName(filePath)
-            self.addInterfaceToSuperview(newTestInterface, filePath)
-            self.parent.switchTo(newTestInterface)
-            self.createdFileInterfaces.append({
-                'name': filePath,
-                'interface': newTestInterface
-            })
-            self.refill(filePath)
 
     def addInterfaceToSuperview(self, newInterface, filePath):
         self.parent.stackedWidget.addWidget(newInterface)
@@ -118,10 +115,3 @@ class DevelopInterface(Ui_DevelopInterface, QWidget):
             cfg.set(cfg.lastViewTest, lastSeen)
             cfg.save()
             self.LastSeenFill()
-
-    def setShadowEffect(self, card: QWidget):
-        shadowEffect = QGraphicsDropShadowEffect(self)
-        shadowEffect.setColor(QColor(0, 0, 0, 50))
-        shadowEffect.setBlurRadius(50)
-        shadowEffect.setOffset(0, 0)
-        card.setGraphicsEffect(shadowEffect)
